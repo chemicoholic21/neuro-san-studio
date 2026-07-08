@@ -1,0 +1,12 @@
+{
+  "l01": {"rating": 4.5, "num_reviews": 812, "reliability_score": 0.92, "summary": "Excellent all-round ultrabook; great keyboard and battery.", "pros": ["light", "long battery", "good keyboard"], "cons": ["only 2 USB-C ports"]},
+  "l02": {"rating": 4.3, "num_reviews": 431, "reliability_score": 0.88, "summary": "Strong creator/gaming laptop; runs warm under load.", "pros": ["fast GPU", "big screen", "lots of RAM"], "cons": ["heavy", "runs hot", "loud fans"]},
+  "l03": {"rating": 4.1, "num_reviews": 1204, "reliability_score": 0.79, "summary": "Solid mid-range gaming value; average build quality.", "pros": ["good price for GPU", "120Hz screen"], "cons": ["mediocre battery", "flexy chassis"]},
+  "l04": {"rating": 4.4, "num_reviews": 356, "reliability_score": 0.83, "summary": "Desktop-replacement powerhouse; very heavy.", "pros": ["top-tier GPU", "huge storage"], "cons": ["very heavy", "expensive", "poor battery"]},
+  "l05": {"rating": 3.6, "num_reviews": 640, "reliability_score": 0.74, "summary": "Cheap and portable but underpowered for multitasking.", "pros": ["very light", "affordable"], "cons": ["only 8GB RAM", "slow CPU", "small storage"]},
+  "l06": {"rating": 3.8, "num_reviews": 905, "reliability_score": 0.77, "summary": "Best-value budget pick for basic student use.", "pros": ["cheapest", "decent storage"], "cons": ["dim screen", "short battery", "8GB RAM"]},
+  "l07": {"rating": 4.7, "num_reviews": 2210, "reliability_score": 0.95, "summary": "Outstanding battery and build; 8GB RAM limits heavy multitasking.", "pros": ["superb battery", "silent fanless", "premium build"], "cons": ["8GB base RAM", "few ports"]},
+  "l08": {"rating": 4.8, "num_reviews": 1580, "reliability_score": 0.96, "summary": "Best-in-class performance-per-watt for creators and developers.", "pros": ["excellent battery", "fast CPU", "great screen"], "cons": ["expensive", "not upgradeable"]},
+  "l09": {"rating": 4.2, "num_reviews": 512, "reliability_score": 0.9, "summary": "Reliable business workhorse with great support.", "pros": ["durable", "great warranty", "light"], "cons": ["dull design", "no dedicated GPU"]},
+  "l10": {"rating": 3.9, "num_reviews": 1730, "reliability_score": 0.72, "summary": "Entry-level gaming on a budget; build feels cheap.", "pros": ["affordable GPU", "16GB RAM"], "cons": ["weak GPU for new titles", "heavy", "cheap plastics"]}
+}

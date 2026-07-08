@@ -1,0 +1,7 @@
+# Copyright © 2025-2026
+#
+# Manifest for the Laptop Advisor group.
+# See https://github.com/cognizant-ai-lab/neuro-san/blob/main/docs/manifest_hocon_reference.md
+{
+    "laptop_advisor/laptop_advisor.hocon": true,
+}

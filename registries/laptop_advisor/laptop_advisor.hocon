@@ -1,0 +1,155 @@
+# Copyright © 2025-2026
+#
+# Laptop Purchase Advisor — a grounded multi-agent network.
+#
+# One agent alone would have to juggle three unrelated concerns at once:
+#   - hard spec/price filtering,
+#   - subjective review/reliability synthesis, and
+#   - warranty/return policy rules.
+# Splitting them into specialists keeps each boundary crisp, and every
+# specialist is grounded in a coded tool that reads LOCAL, DETERMINISTIC data.
+# No agent is allowed to answer from its own model knowledge.
+
+include "registries/aaosa_basic.hocon"
+include "config/llm_config.hocon"
+
+metadata {
+    description = "Multi-agent laptop purchase advisor. Coordinates a spec-filter agent, a reviews agent, and a policy agent, each grounded in local coded-tool data, to recommend a laptop with evidence."
+    tags = ["AAOSA", "grounded", "coded-tools"]
+    sample_queries = [
+        "I have $1000 for a light laptop for programming. What do you recommend?",
+        "Best laptop for gaming under $1500?",
+        "Compare the Fruit Air 13 and the AeroBook 14 for a student.",
+        "What is the warranty and return policy on the WorkMate 14?",
+        "I need a reliable business laptop under 1.5 kg with at least 16GB RAM."
+    ]
+}
+
+tools = [
+
+    # ---- FRONT MAN -------------------------------------------------------
+    # Talks to the user, delegates to specialists, and compiles a final
+    # recommendation WITH the evidence each specialist returned.
+    {
+        name = "LaptopAdvisor"
+        function {
+            description = "Helps a user choose a laptop, grounded entirely in local catalog, review and policy data."
+        }
+        instructions = """
+You are the Laptop Advisor, the single point of contact for the user.
+Your job is to turn a purchase question into a grounded recommendation.
+
+STRICT GROUNDING RULES:
+- You have NO laptop knowledge of your own. Every fact (price, specs, ratings,
+  warranty) MUST come from a down-chain agent's tool response.
+- Never invent laptops, prices, specs, ratings, or policies. If the data does
+  not contain an answer, say so plainly.
+- Always show the evidence: name the laptop(s), their price/specs, the review
+  rating, and the policy facts you relied on.
+
+HOW TO WORK:
+- Use SpecScout to find laptops that satisfy hard constraints (budget, RAM,
+  weight, use case, OS, brand).
+- Use ReviewAnalyst to judge quality/reliability of candidates.
+- Use PolicyAuditor when the user asks about (or a decision depends on)
+  warranty, returns, or support.
+- When constraints conflict or nothing fits, explain the trade-off and offer
+  the closest grounded alternatives instead of guessing.
+- End with a clear decision: a single recommended laptop (or a short ranked
+  list) and one or two sentences of evidence-based justification.
+""" ${aaosa_instructions}
+        tools = ["SpecScout", "ReviewAnalyst", "PolicyAuditor"]
+    }
+
+    # ---- SPECIALIST 1: hard specs & price -------------------------------
+    {
+        name = "SpecScout"
+        function = ${aaosa_call}
+        instructions = """
+You are SpecScout. You handle objective spec and price filtering ONLY.
+Always call LaptopSpecsTool to answer — never state a spec or price from memory.
+Translate the user's needs into tool arguments:
+  max_price, min_ram_gb, use_case (gaming|programming|student|business|creator|portable|budget),
+  max_weight_kg, os_name, brand, or id_or_name for a single lookup.
+Return the matching laptops with their key specs and price exactly as the tool
+reports them. If nothing matches, say so and report what the closest rows were.
+""" ${aaosa_instructions}
+        tools = ["LaptopSpecsTool"]
+    }
+
+    # ---- SPECIALIST 2: reviews & reliability ----------------------------
+    {
+        name = "ReviewAnalyst"
+        function = ${aaosa_call}
+        instructions = """
+You are ReviewAnalyst. You handle review quality and reliability ONLY.
+Always call LaptopReviewsTool with an id_or_name — never invent a rating.
+Report the rating, number of reviews, reliability score, and the pros/cons
+exactly as returned. If a laptop has no review record, say so.
+""" ${aaosa_instructions}
+        tools = ["LaptopReviewsTool"]
+    }
+
+    # ---- SPECIALIST 3: warranty / returns / support ---------------------
+    {
+        name = "PolicyAuditor"
+        function = ${aaosa_call}
+        instructions = """
+You are PolicyAuditor. You handle warranty, return-window and support facts ONLY.
+Always call LaptopPolicyTool with the laptop's brand — never guess a policy.
+Report warranty months, return days, support rating and notes exactly as
+returned. If the brand is not on file, say so.
+""" ${aaosa_instructions}
+        tools = ["LaptopPolicyTool"]
+    }
+
+    # ---- CODED TOOLS (deterministic, local data) ------------------------
+    {
+        name = "LaptopSpecsTool"
+        function {
+            description = "Filter the local laptop catalog or look up one laptop's specs. Returns only rows from local data."
+            parameters {
+                type = "object"
+                properties {
+                    max_price     { type = "number"  description = "Maximum price in USD." }
+                    min_ram_gb    { type = "integer" description = "Minimum RAM in GB." }
+                    use_case      { type = "string"  description = "One of: gaming, programming, student, business, creator, portable, budget." }
+                    max_weight_kg { type = "number"  description = "Maximum weight in kilograms." }
+                    os_name       { type = "string"  description = "Operating system, e.g. Windows or macOS." }
+                    brand         { type = "string"  description = "Brand name to restrict to." }
+                    id_or_name    { type = "string"  description = "Exact id or name for a single-laptop lookup." }
+                }
+                required = []
+            }
+        }
+        class = "laptop_specs_tool.LaptopSpecsTool"
+    }
+    {
+        name = "LaptopReviewsTool"
+        function {
+            description = "Return the review record (rating, reliability, pros/cons) for one laptop from local data."
+            parameters {
+                type = "object"
+                properties {
+                    id_or_name { type = "string" description = "Exact id or name of the laptop." }
+                }
+                required = ["id_or_name"]
+            }
+        }
+        class = "laptop_reviews_tool.LaptopReviewsTool"
+    }
+    {
+        name = "LaptopPolicyTool"
+        function {
+            description = "Return warranty, return-window and support facts for a laptop brand from local data."
+            parameters {
+                type = "object"
+                properties {
+                    brand { type = "string" description = "Brand name, e.g. Lumen, Volt, Nimbus, Orchard, Cardinal." }
+                }
+                required = ["brand"]
+            }
+        }
+        class = "laptop_policy_tool.LaptopPolicyTool"
+    }
+]

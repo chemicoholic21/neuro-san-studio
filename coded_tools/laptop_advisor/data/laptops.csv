@@ -1,0 +1,11 @@
+id,name,brand,price_usd,cpu,ram_gb,storage_gb,storage_type,screen_in,weight_kg,gpu,battery_wh,os,use_case_tags
+l01,AeroBook 14,Lumen,999,Intel Core i5,16,512,SSD,14.0,1.20,Integrated,60,Windows,portable;business;programming;student
+l02,AeroBook Pro 16,Lumen,1899,Intel Core i7,32,1024,SSD,16.0,1.90,RTX 4060,90,Windows,creator;gaming;programming
+l03,ThunderBlade 15,Volt,1499,AMD Ryzen 7,16,1024,SSD,15.6,2.30,RTX 4060,80,Windows,gaming;creator
+l04,ThunderBlade 17,Volt,2299,AMD Ryzen 9,32,2048,SSD,17.3,2.90,RTX 4080,99,Windows,gaming;creator
+l05,Zephyr Air,Nimbus,749,Intel Core i3,8,256,SSD,13.3,1.10,Integrated,50,Windows,budget;student;portable
+l06,Zephyr 15,Nimbus,599,AMD Ryzen 5,8,512,SSD,15.6,1.80,Integrated,45,Windows,budget;student
+l07,Fruit Air 13,Orchard,1099,Apple M3,8,256,SSD,13.6,1.24,Integrated,52,macOS,portable;business;student;creator
+l08,Fruit Pro 14,Orchard,1999,Apple M3 Pro,18,512,SSD,14.2,1.55,Integrated,70,macOS,creator;programming;business
+l09,WorkMate 14,Cardinal,1299,Intel Core i7,16,512,SSD,14.0,1.35,Integrated,57,Windows,business;programming;portable
+l10,GameStorm 15,Volt,1099,AMD Ryzen 5,16,512,SSD,15.6,2.20,RTX 3050,70,Windows,gaming;budget

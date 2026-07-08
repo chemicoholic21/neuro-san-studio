@@ -1,0 +1,7 @@
+{
+  "Lumen":    {"warranty_months": 12, "return_days": 30, "support_rating": 4.2, "notes": "Standard 1-year warranty; 30-day no-questions returns."},
+  "Volt":     {"warranty_months": 12, "return_days": 14, "support_rating": 3.5, "notes": "Gaming brand; shorter 14-day return window, restocking fee may apply."},
+  "Nimbus":   {"warranty_months": 12, "return_days": 30, "support_rating": 3.0, "notes": "Budget brand; support is email-only."},
+  "Orchard":  {"warranty_months": 12, "return_days": 14, "support_rating": 4.7, "notes": "Premium in-store support; optional extended care plan."},
+  "Cardinal": {"warranty_months": 36, "return_days": 30, "support_rating": 4.5, "notes": "Business-grade 3-year warranty with on-site service."}
+}
