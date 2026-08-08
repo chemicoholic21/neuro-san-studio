@@ -35,10 +35,12 @@ logger = logging.getLogger(__name__)
 class _WebPageLoader:
     """Async loader for web pages using aiohttp and BeautifulSoup."""
 
+    # pylint: disable=too-few-public-methods
     def __init__(self, web_path: list[str]) -> None:
         self.web_path = web_path
 
     async def alazy_load(self) -> AsyncGenerator[Document, None]:
+        """Fetch each URL, parse its HTML, and yield extracted documents."""
         for url in self.web_path:
             try:
                 timeout = aiohttp.ClientTimeout(total=30)
@@ -53,7 +55,7 @@ class _WebPageLoader:
                 logger.error("HTTP error loading %s: %s", url, http_e)
             except aiohttp.ClientError as client_e:
                 logger.error("Client error loading %s: %s", url, client_e)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error("Error loading %s: %s", url, e)
 
 
