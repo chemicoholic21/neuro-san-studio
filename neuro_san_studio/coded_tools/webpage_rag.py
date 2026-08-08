@@ -17,18 +17,46 @@
 import logging
 import os
 from typing import Any
+from typing import AsyncGenerator
 
-from langchain_community.document_loaders import WebBaseLoader
+import aiohttp
+from bs4 import BeautifulSoup
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
 from neuro_san.interfaces.coded_tool import CodedTool
-from requests.exceptions import HTTPError
 
 from neuro_san_studio.coded_tools.base_rag import BaseRag
 from neuro_san_studio.coded_tools.base_rag import PostgresConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class _WebPageLoader:
+    """Async loader for web pages using aiohttp and BeautifulSoup."""
+
+    # pylint: disable=too-few-public-methods
+    def __init__(self, web_path: list[str]) -> None:
+        self.web_path = web_path
+
+    async def alazy_load(self) -> AsyncGenerator[Document, None]:
+        """Fetch each URL, parse its HTML, and yield extracted documents."""
+        for url in self.web_path:
+            try:
+                timeout = aiohttp.ClientTimeout(total=30)
+                async with aiohttp.ClientSession(timeout=timeout) as session:
+                    async with session.get(url) as response:
+                        response.raise_for_status()
+                        html = await response.text()
+                soup = BeautifulSoup(html, "html.parser")
+                text = soup.get_text(separator=" ", strip=True)
+                yield Document(page_content=text, metadata={"source": url})
+            except aiohttp.ClientResponseError as http_e:
+                logger.error("HTTP error loading %s: %s", url, http_e)
+            except aiohttp.ClientError as client_e:
+                logger.error("Client error loading %s: %s", url, client_e)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.error("Error loading %s: %s", url, e)
 
 
 class WebpageRag(CodedTool, BaseRag):
@@ -38,8 +66,7 @@ class WebpageRag(CodedTool, BaseRag):
 
     async def async_invoke(self, args: dict[str, Any], sly_data: dict[str, Any]) -> str:
         """
-        Load webpages from URLs using WebBaseLoader, build a vector store, and run a query against it.
-        See https://reference.langchain.com/python/langchain-community/document_loaders/web_base/WebBaseLoader.
+        Load webpages from URLs, build a vector store, and run a query against it.
 
         :param args: Dictionary containing:
           "query": search string
@@ -113,16 +140,9 @@ class WebpageRag(CodedTool, BaseRag):
         docs: list[Document] = []
         urls: list[str] = loader_args.get("urls", [])
 
-        loader = WebBaseLoader(web_path=urls)
+        loader = _WebPageLoader(web_path=urls)
         async for doc in loader.alazy_load():
-            try:
-                docs.append(doc)
-                logger.info("Successfully loaded PDF file from %s", doc.metadata.get("source", "unknown source"))
-            except HTTPError as http_e:
-                logger.error("HTTP error occurred: %s", http_e)
-            except FileNotFoundError as fnf_e:
-                logger.error("File not found: %s", fnf_e)
-            except ValueError as val_e:
-                logger.error("Value error: %s", val_e)
+            docs.append(doc)
+            logger.info("Successfully loaded webpage from %s", doc.metadata.get("source", "unknown source"))
 
         return docs
