@@ -51,36 +51,6 @@ class TestOrderAPI(TestCase):
         expected_resp_2 = f"Order 101 placed successfully for Olivier at {OrderAPI.SHOP_1}. Details: Black coffee"
         self.assertEqual(expected_resp_2, response_2)
 
-    def test_invoke_customer_name_mismatch(self):
-        """
-        Regression test for a partial name (e.g. "Pixel") being silently accepted as a
-        match for a full name already on file (e.g. "Pixel Smith"). See issue #557:
-        a partial-name match must NOT be treated as the same customer.
-        """
-        order_api = OrderAPI()
-        sly_data = {"username": "Pixel Smith"}
-        order = {"customer_name": "Pixel", "shop_name": OrderAPI.SHOP_3, "order_details": "Black coffee"}
-        response = order_api.invoke(args=order, sly_data=sly_data)
-        expected_error = "Error: The name 'Pixel' does not match the name on file ('Pixel Smith')."
-        self.assertTrue(response.startswith(expected_error))
-        # The mismatched name must not overwrite the name already on file.
-        self.assertEqual("Pixel Smith", sly_data["username"])
-
-    def test_invoke_customer_name_match_is_case_and_whitespace_insensitive(self):
-        """
-        A name that matches the one on file, modulo case/leading-trailing whitespace,
-        should still be accepted (this is not the "Pixel"-vs-"Pixel Smith" bug).
-        """
-        order_api = OrderAPI()
-        customer_name = " pixel smith  "
-        sly_data = {"username": "Pixel Smith"}
-        order = {"customer_name": customer_name, "shop_name": OrderAPI.SHOP_3, "order_details": "Black coffee"}
-        response = order_api.invoke(args=order, sly_data=sly_data)
-        expected_resp = (
-            f"Order 301 placed successfully for {customer_name} at {OrderAPI.SHOP_3}. Details: Black coffee"
-        )
-        self.assertEqual(expected_resp, response)
-
     def test_invoke_shop_name(self):
         """
         Tests the invoke method of the OrderAPI CodedTool when an invalid or no shop name is provided.

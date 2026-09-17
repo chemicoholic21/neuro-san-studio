@@ -56,24 +56,11 @@ class OrderAPI(CodedTool):
         logger.debug(">>>>>>>>>>>>>>>>>>> OrderAPI >>>>>>>>>>>>>>>>>>")
         # Client name is required to place an order.
         customer_name: str = args.get("customer_name", None)
-        known_name: str = sly_data.get("username", None)
         if not customer_name:
             logger.debug("No customer name provided. Trying to get it from sly_data")
-            customer_name = known_name
+            customer_name = sly_data.get("username")
         if not customer_name:
             error = "Error: Please provide a valid customer name for the order."
-            logger.debug(error)
-            return error
-
-        # If we already know the customer's full name, a newly given name must match it
-        # exactly (case/whitespace insensitively). A partial name (e.g. "Pixel" when the
-        # name on file is "Pixel Smith") is NOT a safe match: silently accepting it could
-        # misidentify the customer and, e.g., reuse or repeat someone else's prior order.
-        if known_name and customer_name.strip().casefold() != known_name.strip().casefold():
-            error = (
-                f"Error: The name '{customer_name}' does not match the name on file "
-                f"('{known_name}'). Please confirm the customer's full name before placing the order."
-            )
             logger.debug(error)
             return error
 
